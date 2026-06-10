@@ -59,6 +59,35 @@ def _extrair_extensao_bt(text: str) -> float | None:
     return None
 
 
+def _inferir_fase_por_tensao(text: str, tensao_mt_kv: float | None) -> str:
+    if tensao_mt_kv is None:
+        return "nao_informado"
+
+    possui_rdr = bool(re.search(r"\b(RDR|RAMAL RURAL|REDE RURAL)\b", text))
+    possui_rdu = bool(re.search(r"\bRDU\b", text))
+    possui_rede_bt = bool(re.search(r"\b(REDE BT|BT)\b", text)) or bool(re.search(r"\d{3}\s*/\s*\d{3}\s*V\b", text))
+
+    if possui_rdr:
+        if abs(tensao_mt_kv - 19.9) < 0.011:
+            return "monofasico"
+        if abs(tensao_mt_kv - 34.5) < 0.011:
+            return "trifasico"
+
+    if possui_rdu:
+        if abs(tensao_mt_kv - 7.9) < 0.011:
+            return "monofasico"
+        if abs(tensao_mt_kv - 13.8) < 0.011:
+            return "trifasico"
+
+    if not possui_rdu and not possui_rede_bt:
+        if abs(tensao_mt_kv - 19.9) < 0.011:
+            return "monofasico"
+        if abs(tensao_mt_kv - 34.5) < 0.011:
+            return "trifasico"
+
+    return "nao_informado"
+
+
 def extrair_variaveis_tecnicas(descricao: str | None) -> dict[str, Any]:
     text = normalizar_descricao(descricao)
 
@@ -94,6 +123,8 @@ def extrair_variaveis_tecnicas(descricao: str | None) -> dict[str, Any]:
         fase = "monofasico"
     elif "TRIFASICO" in text:
         fase = "trifasico"
+    else:
+        fase = _inferir_fase_por_tensao(text, tensao_mt_kv)
 
     possui_rede_bt = bool(re.search(r"\b(REDE BT|BT)\b", text)) or tensao_bt_v is not None
     possui_rdu = bool(re.search(r"\bRDU\b", text))

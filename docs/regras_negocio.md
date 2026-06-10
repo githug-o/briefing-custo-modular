@@ -130,6 +130,29 @@ quantidade_sugerida = mediana historica da quantidade
 - IA externa e fallback opcional, nao motor principal.
 - O projeto deve permanecer local-first, sem Azure no MVP.
 
+## Inferencia de fase por tensao
+
+Quando a descricao informar explicitamente monofasico ou trifasico, o texto deve prevalecer.
+
+Quando a descricao nao informar a fase, o sistema deve inferir pela tensao e pelo tipo de rede:
+
+| Tipo de rede | Tensao | Fase inferida |
+| --- | ---: | --- |
+| RDR | 19,9 kV | monofasico |
+| RDR | 34,5 kV | trifasico |
+| RDU | 7,9 kV | monofasico |
+| RDU | 13,8 kV | trifasico |
+| Rede sem BT/RDU explicito | 19,9 kV | monofasico |
+| Rede sem BT/RDU explicito | 34,5 kV | trifasico |
+
+Para a regra generica de rede sem BT/RDU, o texto nao precisa conter literalmente `MT`. A inferencia pode usar a tensao quando nao houver indicador de rede BT ou RDU.
+
+Se a tensao ou o tipo de rede nao permitirem inferencia, manter:
+
+```text
+nao_informado
+```
+
 ## Pontos que precisam validacao de engenharia
 
 - Regra de Ramal Rural puro.

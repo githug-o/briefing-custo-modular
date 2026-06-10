@@ -2,6 +2,32 @@
 
 Este roteiro serve para validar o MVP sem depender de automacao.
 
+## Testes automatizados existentes
+
+Ja existe uma cobertura automatizada inicial para extracao de fase em:
+
+```text
+tests/test_extracao_variaveis.py
+```
+
+Para executar:
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests
+```
+
+Esses testes validam:
+
+- RDR 19,9 kV como monofasico;
+- RDR 34,5 kV como trifasico;
+- RDU 7,9 kV como monofasico;
+- RDU 13,8 kV como trifasico;
+- rede generica 19,9 kV sem BT/RDU como monofasico;
+- rede generica 34,5 kV sem BT/RDU como trifasico;
+- bloqueio de inferencia generica quando ha BT;
+- RDR 7,97 kV sem inferencia;
+- fase explicita no texto prevalecendo sobre inferencia por tensao.
+
 ## 1. Teste de instalacao local
 
 Objetivo: confirmar que o sistema abre no computador do usuario.

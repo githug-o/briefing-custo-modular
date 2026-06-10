@@ -45,14 +45,21 @@ def classificar_tipo_servico(
 ) -> ResultadoClassificacao:
     texto = normalizar_descricao(descricao)
     modelo = _treinar_modelo_local(obras_df)
+    resultado_modelo_baixa_confianca: ResultadoClassificacao | None = None
 
     if modelo is not None:
         proba = modelo.predict_proba([texto])[0]
         idx = int(proba.argmax())
         tipo = str(modelo.named_steps["clf"].classes_[idx])
         score = float(proba[idx])
-        if score >= 0.35 or not usar_ia_fallback:
+        if score >= 0.35:
             return ResultadoClassificacao(tipo, score, "modelo_local")
+        resultado_modelo_baixa_confianca = ResultadoClassificacao(
+            tipo,
+            score,
+            "modelo_local_baixa_confianca",
+            "Classificacao abaixo do limiar de confianca.",
+        )
 
     # Regra simples para quando ainda não há base/modelo suficiente.
     ext = extrair_variaveis_tecnicas(descricao)
@@ -74,5 +81,8 @@ def classificar_tipo_servico(
                 "ia_fallback",
                 retorno_ia.get("justificativa", ""),
             )
+
+    if resultado_modelo_baixa_confianca is not None:
+        return resultado_modelo_baixa_confianca
 
     return ResultadoClassificacao("NAO_IDENTIFICADO", 0.0, "sem_classificacao")
