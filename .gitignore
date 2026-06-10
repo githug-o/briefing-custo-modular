@@ -1,0 +1,14 @@
+.venv/
+.env
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+.vscode/
+data/app.db
+data/tmp/*
+data/raw/planilhas_importadas/*
+data/backups/*
+exports/orcamentos/*
+logs/*
+models/*.pkl
