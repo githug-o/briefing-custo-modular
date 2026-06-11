@@ -26,7 +26,10 @@ Esses testes validam:
 - rede generica 34,5 kV sem BT/RDU como trifasico;
 - bloqueio de inferencia generica quando ha BT;
 - RDR 7,97 kV sem inferencia;
-- fase explicita no texto prevalecendo sobre inferencia por tensao.
+- fase explicita no texto prevalecendo sobre inferencia por tensao;
+- rede rural escrita por extenso sem sigla RDR;
+- conversao de extensao em KM para metros;
+- rede BT pura sem marcar extensao MT como campo ausente.
 
 ## 1. Teste de instalacao local
 

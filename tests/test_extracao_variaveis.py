@@ -64,6 +64,29 @@ class ExtracaoVariaveisTest(unittest.TestCase):
             "monofasico",
         )
 
+    def test_extrai_rede_rural_sem_sigla_rdr(self) -> None:
+        resultado = extrair_variaveis_tecnicas(
+            "CONSTRUCAO DE 600M de rede rural 19,9kv e instalacao de 2 transformadores DE 20KVA"
+        )
+
+        self.assertEqual(resultado["extensao_mt_m"], 600)
+        self.assertEqual(resultado["tensao_mt_kv"], 19.9)
+        self.assertEqual(resultado["qtd_trafo"], 2)
+        self.assertEqual(resultado["potencia_trafo_kva"], 20)
+        self.assertEqual(resultado["fase"], "monofasico")
+
+    def test_converte_km_para_metros_na_extensao_mt(self) -> None:
+        resultado = extrair_variaveis_tecnicas(
+            "CONSTRUCAO DE 2KM DE RDR MT 19,9KV COM INSTALACAO DE 01 TRAFO DE 15KVA"
+        )
+
+        self.assertEqual(resultado["extensao_mt_m"], 2000)
+
+    def test_nao_marca_extensao_mt_ausente_em_rede_bt_pura(self) -> None:
+        resultado = extrair_variaveis_tecnicas("CONSTRUCAO DE 122 METROS DE REDE BT 440/220V")
+
+        self.assertNotIn("extensao_mt_m", resultado["campos_ausentes"])
+
 
 if __name__ == "__main__":
     unittest.main()

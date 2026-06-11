@@ -26,23 +26,34 @@ def _first_int(pattern: str, text: str) -> int | None:
         return None
 
 
+def _normalizar_extensao(valor: str, unidade: str = "M") -> float:
+    numero = float(valor)
+    if unidade.upper() == "KM":
+        return numero * 1000
+    return numero
+
+
 def _extrair_extensao_mt(text: str) -> float | None:
     padroes = [
-        r"(\d+(?:\.\d+)?)\s*M\s+DE\s+RDR\s+MT\b",
-        r"(\d+(?:\.\d+)?)\s*M\s+DE\s+REDE\s+MT\b",
-        r"(\d+(?:\.\d+)?)\s*M\s+DE\s+MT\b",
-        r"(\d+(?:\.\d+)?)\s*M\s+.*?\bREDE\s+MT\b",
-        r"(\d+(?:\.\d+)?)\s*M\s+.*?\bRDR\s+MT\b",
+        r"(\d+(?:\.\d+)?)\s*(KM|M)\s+DE\s+RDR\s+MT\b",
+        r"(\d+(?:\.\d+)?)\s*(KM|M)\s+DE\s+REDE\s+RURAL\b",
+        r"(\d+(?:\.\d+)?)\s*(KM|M)\s+DE\s+RAMAL\s+RURAL\b",
+        r"(\d+(?:\.\d+)?)\s*(KM|M)\s+DE\s+REDE\s+MT\b",
+        r"(\d+(?:\.\d+)?)\s*(KM|M)\s+DE\s+MT\b",
+        r"(\d+(?:\.\d+)?)\s*(KM|M)\s+.*?\bREDE\s+RURAL\b",
+        r"(\d+(?:\.\d+)?)\s*(KM|M)\s+.*?\bRAMAL\s+RURAL\b",
+        r"(\d+(?:\.\d+)?)\s*(KM|M)\s+.*?\bREDE\s+MT\b",
+        r"(\d+(?:\.\d+)?)\s*(KM|M)\s+.*?\bRDR\s+MT\b",
     ]
     for padrao in padroes:
-        valor = _first_float(padrao, text)
-        if valor is not None:
-            return valor
+        match = re.search(padrao, text)
+        if match:
+            return _normalizar_extensao(match.group(1), match.group(2))
 
     # Se existir uma única extensão e o texto indicar MT/RDR, usar como extensão MT.
-    todas = re.findall(r"(\d+(?:\.\d+)?)\s*M\b", text)
-    if len(todas) == 1 and re.search(r"\b(RDR|REDE MT|MT)\b", text):
-        return float(todas[0])
+    todas = re.findall(r"(\d+(?:\.\d+)?)\s*(KM|M)\b", text)
+    if len(todas) == 1 and re.search(r"\b(RDR|REDE RURAL|RAMAL RURAL|REDE MT|MT)\b", text):
+        return _normalizar_extensao(todas[0][0], todas[0][1])
     return None
 
 
@@ -140,7 +151,8 @@ def extrair_variaveis_tecnicas(descricao: str | None) -> dict[str, Any]:
     extensao_bt_m = _extrair_extensao_bt(text)
 
     campos_ausentes: list[str] = []
-    if extensao_mt_m is None:
+    exige_extensao_mt = possui_rede_mt or rede_rural_indicador
+    if exige_extensao_mt and extensao_mt_m is None:
         campos_ausentes.append("extensao_mt_m")
     if possui_trafo and potencia_trafo_kva is None:
         campos_ausentes.append("potencia_trafo_kva")

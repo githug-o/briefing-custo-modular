@@ -130,6 +130,32 @@ quantidade_sugerida = mediana historica da quantidade
 - IA externa e fallback opcional, nao motor principal.
 - O projeto deve permanecer local-first, sem Azure no MVP.
 
+## Identificacao de extensao MT
+
+O sistema deve reconhecer extensao MT em descricoes com:
+
+- `RDR MT`;
+- `REDE MT`;
+- `MT`;
+- `REDE RURAL`;
+- `RAMAL RURAL`.
+
+Exemplo:
+
+```text
+CONSTRUCAO DE 600M DE REDE RURAL 19,9KV E INSTALACAO DE 2 TRANSFORMADORES DE 20KVA
+```
+
+Resultado esperado:
+
+```text
+extensao_mt_m = 600
+tensao_mt_kv = 19,9
+qtd_trafo = 2
+potencia_trafo_kva = 20
+fase = monofasico
+```
+
 ## Inferencia de fase por tensao
 
 Quando a descricao informar explicitamente monofasico ou trifasico, o texto deve prevalecer.
